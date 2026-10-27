@@ -26,6 +26,10 @@ These short, silent demonstrations show the actual QuietRead interface running i
 
 The bundled welcome script is a short synthetic example. Imported scripts and reading positions are not included in the source tree.
 
+## Download the macOS preview
+
+An [Apple silicon preview download](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.2.0-preview.1) is available for macOS 15 or later. Unzip the archive and move `QuietRead.app` to Applications. **This preview is ad-hoc signed and has not been notarized by Apple**, so Gatekeeper may block it after download. See the release notes and [Apple’s guidance](https://support.apple.com/102445). A browser version can be built from source as described below.
+
 ## Requirements
 
 - Apple silicon Mac, macOS 15 or later.

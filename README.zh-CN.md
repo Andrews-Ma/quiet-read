@@ -20,6 +20,10 @@ QuietRead 是一款离线 macOS 提词器：它按照可调整的速度滚动稿
 - 在本地保存最近稿件、阅读位置与设置，并提供进度备份恢复和存储错误提示。
 - 无需联网、账号或麦克风权限；程序不录音，也不跟踪语音。
 
+## 下载 macOS 预览版
+
+[下载 Apple 芯片 Mac 预览版](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.2.0-preview.1)，需要 macOS 15 或更新版本。解压后可将 `QuietRead.app` 拖入“应用程序”。**此预览版仅经临时签名，尚未经过 Apple 公证**，下载后可能被 macOS 阻止打开；请查看发布说明和 [Apple 官方指引](https://support.apple.com/102445)。
+
 ## 系统要求与构建
 
 需要 Apple 芯片 Mac、macOS 15 或更新版本、Xcode 或 Xcode 命令行工具，以及 Python 3。运行 JavaScript 测试还需要 Node.js。
