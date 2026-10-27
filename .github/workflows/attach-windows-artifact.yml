@@ -15,6 +15,7 @@ jobs:
   attach:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
       - name: Verify build and draft release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -44,4 +45,6 @@ jobs:
           expected=$(tr -d '\r\n ' < QuietRead-Windows-x64.sha256 | tr '[:upper:]' '[:lower:]')
           actual=$(sha256sum QuietRead-Windows-x64.zip | cut -d ' ' -f 1)
           test "$expected" = "$actual"
-          gh release upload "$RELEASE_TAG" QuietRead-Windows-x64.zip QuietRead-Windows-x64.sha256
+          python3 -c "import zipfile; z=zipfile.ZipFile('QuietRead-Windows-x64.zip','a'); z.write('../LICENSE','LICENSE.txt') if 'LICENSE.txt' not in z.namelist() else None; z.close()"
+          sha256sum QuietRead-Windows-x64.zip | cut -d ' ' -f 1 > QuietRead-Windows-x64.sha256
+          gh release upload "$RELEASE_TAG" QuietRead-Windows-x64.zip QuietRead-Windows-x64.sha256 --clobber
