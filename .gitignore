@@ -17,3 +17,8 @@ __pycache__/
 *.m4a
 *.mp3
 *.aiff
+
+# Windows build output
+/src/windows/Generated/
+/src/windows/bin/
+/src/windows/obj/
