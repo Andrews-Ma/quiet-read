@@ -1,0 +1,19 @@
+# Generated artifacts and local environment
+/build/
+/dist/
+*.app/
+.DS_Store
+__pycache__/
+*.pyc
+.env
+.env.*
+*.local.*
+*.log
+
+# Keep private recordings and drafts out of the repository.
+/private/
+/recordings/
+*.wav
+*.m4a
+*.mp3
+*.aiff

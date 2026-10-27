@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>QuietRead</title>
+  <style>__STYLE__</style>
+</head>
+<body>
+  <header>
+    <button id="play" disabled>Start</button>
+    <div id="speeds" role="group" aria-label="Speed, characters per minute" data-i18n-aria="speedAria">
+      <button data-speed="150">150</button><button data-speed="160">160</button><button data-speed="170">170</button>
+      <button data-speed="180">180</button><button data-speed="190">190</button><button data-speed="200">200</button>
+    </div>
+    <span id="title" aria-label="Current script" data-i18n-aria="currentScript">Restoring script…</span>
+    <span class="spacer"></span>
+    <button id="prev" aria-label="Previous paragraph" data-i18n-aria="previous">←</button>
+    <button id="next" aria-label="Next paragraph" data-i18n-aria="next">→</button>
+    <button id="settings" aria-expanded="false" data-i18n="settings">Settings</button>
+    <button id="full" data-i18n="fullScreen">Full screen</button>
+  </header>
+  <div id="banner" role="status" hidden><span id="bannerText"></span><button id="dismiss" aria-label="Dismiss" data-i18n-aria="dismiss">×</button></div>
+  <main>
+    <div id="viewport" tabindex="0" aria-label="Script" data-i18n-aria="script"><article id="text"></article></div>
+    <span class="marker" aria-hidden="true">▸</span><div id="count" hidden></div>
+  </main>
+  <footer>
+    <span id="position">—</span><input id="seek" type="range" min="0" max="10000" value="0" aria-label="Reading progress" data-i18n-aria="readingProgress">
+    <span id="notice" role="status" aria-live="polite">Restoring…</span><button id="save">Waiting to save</button>
+  </footer>
+  <aside id="panel" hidden>
+    <button id="close" aria-label="Close settings" data-i18n="close" data-i18n-aria="closeSettings">Close</button>
+    <h2 data-i18n="settingsTitle">Script and settings</h2>
+    <label for="language" data-i18n="language">Language</label>
+    <select id="language"><option value="en">English</option><option value="zh">中文</option></select>
+    <div class="row"><button id="open" data-i18n="import">Import TXT / Markdown…</button></div>
+    <input id="file" type="file" accept=".txt,.md,.markdown,text/plain,text/markdown">
+    <label for="books" data-i18n="recent">Recent scripts</label><select id="books"></select>
+    <p id="bookInfo" class="document-info"></p><p id="bookWarnings"></p>
+    <label for="scene" data-i18n="section">Section</label><select id="scene"></select>
+    <label data-i18n="speedRange">Speed range (characters per minute)</label>
+    <div class="row speed-range">
+      <label for="speedMin"><span data-i18n="minimum">Minimum</span><input id="speedMin" type="number" min="1" max="1000" step="1" inputmode="numeric"></label>
+      <label for="speedMax"><span data-i18n="maximum">Maximum</span><input id="speedMax" type="number" min="1" max="1000" step="1" inputmode="numeric"></label>
+      <button id="applySpeedRange" type="button" data-i18n="applyRange">Apply range</button>
+    </div>
+    <p id="speedRangeMessage" role="status" aria-live="polite"></p>
+    <label for="font"><span data-i18n="fontSize">Font size</span> <span id="fontValue">44</span></label>
+    <input id="font" type="range" min="28" max="72" step="2" value="44">
+    <label><input id="countdown" type="checkbox" checked> <span data-i18n="countdown">Silent 3-second countdown</span></label>
+    <label><input id="focus" type="checkbox"> <span data-i18n="focus">Hide toolbar while reading (Esc to show)</span></label>
+    <label for="paste" data-i18n="pasteLabel">Or paste a script</label>
+    <textarea id="paste" placeholder="Paste your script" data-i18n-placeholder="pastePlaceholder"></textarea>
+    <button id="usePaste" data-i18n="loadText">Load text</button>
+    <p data-i18n="shortcuts">Space: start / pause. Arrow keys: previous / next paragraph. Scrolling pauses. Speed is an estimate; the app does not record.</p>
+    <p id="storage"></p>
+  </aside>
+  <script id="builtins" type="application/json">__BUILTINS__</script>
+  <script>__I18N__</script>
+  <script>__ENGINE__</script>
+  <script>__STORAGE__</script>
+  <script>__APPLICATION__</script>
+</body>
+</html>
