@@ -2,11 +2,11 @@
 
 English | [简体中文](README.zh-CN.md)
 
-QuietRead is a small, offline teleprompter for reading scripts from a Mac. It scrolls text at an adjustable estimated speed, remembers each script's position locally, and supports English and Simplified Chinese. New installations start in English; use **Settings → Language → 中文** to switch languages.
+QuietRead is a small, offline teleprompter for reading scripts on macOS and Windows. It scrolls text at an adjustable estimated speed, remembers each script's position locally, and supports English and Simplified Chinese. New installations start in English; use **Settings → Language → 中文** to switch languages.
 
 ## See it in action
 
-These short, silent demonstrations show the actual QuietRead interface running in a browser with original example scripts. The native macOS app uses the same reading interface.
+These short, silent demonstrations show the actual QuietRead interface running in a browser with original example scripts. The desktop apps use the same reading interface.
 
 **English**
 
@@ -26,51 +26,30 @@ These short, silent demonstrations show the actual QuietRead interface running i
 
 The bundled welcome script is a short synthetic example. Imported scripts and reading positions are not included in the source tree.
 
-## Download for macOS
+## Download and install
 
-An [Download for Apple silicon](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.2.0) is available for macOS 15 or later. Unzip the archive and move `QuietRead.app` to Applications. Gatekeeper may block the downloaded app. See the release notes and [Apple’s guidance](https://support.apple.com/102445). A browser version can be built from source as described below.
+- **macOS:** [Download for Apple silicon](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.2.0). Requires macOS 15 or later. Unzip the download and move `QuietRead.app` to Applications.
+- **Windows:** [Download for Windows x64](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.2.0-windows). Requires 64-bit Windows 10 or 11 and the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/). Extract the entire ZIP into a folder and open `QuietRead.exe` there; keep the accompanying files together. Windows SmartScreen may show a warning for the download.
 
-## Requirements
+The downloaded apps run without Xcode, Python or Node.js. The Windows package includes the .NET runtime; it uses WebView2 for the reading interface.
 
-- Apple silicon Mac, macOS 15 or later.
-- Xcode or the Xcode command-line tools for building the native app.
-- Python 3 for the build script; Node.js is needed only for JavaScript tests.
+## Building and testing from source
 
-## Build
-
-From this directory, run:
-
-```sh
-python3 scripts/build.py
-```
-
-The script creates `build/QuietRead.app` and `build/QuietRead.html`; it does not install the application. Open the app from Finder, or open the HTML file in a browser. An existing build directory is replaced only if it contains the tool's generated marker. The app is locally ad-hoc signed; distribution on other Macs may require appropriate Apple signing and notarization.
-
-`python3 scripts/build.py --help` lists optional settings for an isolated build, bundle identifier, application name and storage directory. The defaults use a generic example bundle identifier. Set an identifier you control before distributing your own build.
-
-## Tests
-
-```sh
-node tests/engine.test.cjs
-node tests/storage.test.cjs
-xcrun swiftc src/mac/Store.swift tests/StoreTests.swift -o /tmp/quietread-store-tests
-/tmp/quietread-store-tests
-```
-
-The scrolling test uses accelerated simulation; it does not claim a real-time 30-minute recording test.
+These steps are for developers who want to modify or build the application; they are not needed to use the downloads above. See [BUILDING.md](docs/BUILDING.md) for platform-specific build requirements, commands and tests.
 
 ## Using scripts
 
 TXT is split at blank lines and special characters are retained. For Markdown, headings provide section navigation and are not spoken. Fenced block markers are hidden but their contents remain. The interface warns about these transformations. A pair of `<!-- CONTENT START -->` and `<!-- CONTENT END -->` markers limits the imported portion; older Chinese-language content markers are also supported. Check the imported script before recording.
 
-Progress is saved about every two seconds while scrolling, and after navigation or setting changes. A sudden interruption can lose the latest unsaved position. The native app keeps its default local data under `~/Library/Application Support/QuietRead/Data/`; the browser version uses that browser's local storage. The two stores are separate, and the app does not encrypt the files itself. Keep your source scripts backed up independently.
+Progress is saved about every two seconds while scrolling, and after navigation or setting changes. A sudden interruption can lose the latest unsaved position. The macOS app keeps its data under `~/Library/Application Support/QuietRead/Data/`; the Windows app uses its WebView2 profile under `%LOCALAPPDATA%/QuietRead/`. The browser version uses that browser’s separate local storage. The app does not encrypt these files itself. Keep your source scripts backed up independently.
 
 ## Project layout
 
 - `src/web/`: presentation, translations, parsing, scrolling and browser/native storage bridge.
-- `src/mac/`: native window, menus, file picker and local storage.
+- `src/mac/`: native macOS window, menus, file picker and local storage.
+- `src/windows/`: Windows desktop host using WebView2.
 - `assets/icon.png`: application icon.
-- `scripts/build.py`: offline app builder.
+- `scripts/`: build tools for the shared interface and macOS app.
 - `tests/`: synthetic tests with no personal scripts.
 
 The icon was created with an image-generation tool and edited by direction. The repository copy contains only the image data needed for the icon; auxiliary embedded metadata was removed.
