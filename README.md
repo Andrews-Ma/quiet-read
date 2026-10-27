@@ -1,6 +1,20 @@
 # QuietRead
 
+English | [简体中文](README.zh-CN.md)
+
 QuietRead is a small, offline teleprompter for reading scripts from a Mac. It scrolls text at an adjustable estimated speed, remembers each script's position locally, and supports English and Simplified Chinese. New installations start in English; use **Settings → Language → 中文** to switch languages.
+
+## See it in action
+
+These short, silent demonstrations show the actual QuietRead interface running in a browser with original example scripts. The native macOS app uses the same reading interface.
+
+**English**
+
+![QuietRead scrolling an English sample script](docs/media/demo-en.gif)
+
+**中文**
+
+![轻读提词器滚动中文示例稿件](docs/media/demo-zh.gif)
 
 ## Features
 
