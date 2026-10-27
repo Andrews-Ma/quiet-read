@@ -23,8 +23,8 @@ QuietRead 是一款适用于 macOS 和 Windows 的离线提词器：它按照可
 
 ## 下载与安装
 
-- **macOS：**[下载 Apple 芯片 Mac 版本](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.2.0)。需要 macOS 15 或更新版本；解压后将 `QuietRead.app` 拖入“应用程序”。
-- **Windows：**[下载 Windows x64 版本](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.2.0-windows)。需要 64 位 Windows 10 或 11，以及 [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。将 ZIP 内全部文件解压到同一文件夹，打开其中的 `QuietRead.exe`；Windows SmartScreen 可能对下载显示提示。
+- **macOS：**[下载 Apple 芯片 Mac 版本](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.4.0)。需要 macOS 15 或更新版本；解压后将 `QuietRead.app` 拖入“应用程序”。
+- **Windows：**[下载 Windows x64 版本](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.4.0-windows)。需要 64 位 Windows 10 或 11，以及 [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。将 ZIP 内全部文件解压到同一文件夹，打开其中的 `QuietRead.exe`；Windows SmartScreen 可能对下载显示提示。
 
 Windows 包已包含 .NET 运行时，阅读界面使用 WebView2。
 

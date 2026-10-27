@@ -29,8 +29,8 @@ The bundled welcome script is a short synthetic example. Imported scripts and re
 
 ## Download and install
 
-- **macOS:** [Download for Apple silicon](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.2.0). Requires macOS 15 or later. Unzip the download and move `QuietRead.app` to Applications.
-- **Windows:** [Download for Windows x64](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.2.0-windows). Requires 64-bit Windows 10 or 11 and the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/). Extract the entire ZIP into a folder and open `QuietRead.exe` there; keep the accompanying files together. Windows SmartScreen may show a warning for the download.
+- **macOS:** [Download for Apple silicon](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.4.0). Requires macOS 15 or later. Unzip the download and move `QuietRead.app` to Applications.
+- **Windows:** [Download for Windows x64](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.4.0-windows). Requires 64-bit Windows 10 or 11 and the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/). Extract the entire ZIP into a folder and open `QuietRead.exe` there; keep the accompanying files together. Windows SmartScreen may show a warning for the download.
 
 The Windows package includes the .NET runtime; it uses WebView2 for the reading interface.
 
