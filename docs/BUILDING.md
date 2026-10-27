@@ -10,7 +10,7 @@ On an Apple silicon Mac with macOS 15 or later, install the Xcode command-line t
 python3 scripts/build.py
 ```
 
-This produces `build/QuietRead.app` and `build/QuietRead.html`. The app does not require Python or Xcode at runtime. `python3 scripts/build.py --help` lists build options, including the application name, bundle identifier, output and storage directories. The default bundle identifier is a placeholder; use an identifier you control for your own distribution.
+This produces `build/QuietRead.app` and `build/QuietRead.html`. `python3 scripts/build.py --help` lists build options, including the application name, bundle identifier, output and storage directories. The default bundle identifier is a placeholder; use an identifier you control for your own distribution.
 
 ## Windows
 
@@ -30,6 +30,7 @@ JavaScript tests require Node.js. Swift storage tests run on macOS with Xcode co
 ```sh
 node tests/engine.test.cjs
 node tests/storage.test.cjs
+python3 tests/theme_contrast.test.py
 xcrun swiftc src/mac/Store.swift tests/StoreTests.swift -o /tmp/quietread-store-tests
 /tmp/quietread-store-tests
 ```

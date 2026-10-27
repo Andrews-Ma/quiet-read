@@ -28,6 +28,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 1120, height: 800),
                           styleMask: [.titled, .closable, .miniaturizable, .resizable], backing: .buffered, defer: false)
         window.title = "QuietRead"
+        window.titlebarAppearsTransparent = true
         window.minSize = NSSize(width: 680, height: 460)
         window.contentView = web
         window.delegate = self
@@ -39,6 +40,14 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
         }
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
+    }
+    private func applyTheme(color: String, dark: Bool) {
+        guard color.range(of: #"^#[0-9a-fA-F]{6}$"#, options: .regularExpression) != nil,
+              let rgb = Int(color.dropFirst(), radix: 16) else { return }
+        window.backgroundColor = NSColor(srgbRed: CGFloat((rgb >> 16) & 0xff) / 255,
+                                         green: CGFloat((rgb >> 8) & 0xff) / 255,
+                                         blue: CGFloat(rgb & 0xff) / 255, alpha: 1)
+        window.appearance = NSAppearance(named: dark ? .darkAqua : .aqua)
     }
     private func createMenu() {
         let menu = NSMenu()
@@ -102,6 +111,10 @@ final class AppDelegate: NSObject, NSApplicationDelegate, WKScriptMessageHandler
             language = request["language"] as? String == "zh" ? "zh" : "en"
             window.title = tr("QuietRead", "轻读提词器")
             createMenu()
+            return
+        }
+        if op == "setTheme" {
+            applyTheme(color: request["color"] as? String ?? "", dark: request["dark"] as? Bool ?? true)
             return
         }
         guard let id = request["id"] as? Int else { return }

@@ -1,4 +1,6 @@
 using System.Reflection;
+using System.Runtime.InteropServices;
+using System.Text.Json;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 
@@ -23,6 +25,23 @@ internal sealed class ReaderWindow : Form
     private FormBorderStyle previousBorder;
     private FormWindowState previousState;
     private bool isFullscreen;
+    private string lastThemeColor = "";
+
+    [DllImport("dwmapi.dll")]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, int attribute, ref int value, int valueSize);
+
+    private void ApplyTitleBar(string color, bool dark)
+    {
+        if (color.Length != 7 || color[0] != '#' || !int.TryParse(color.AsSpan(1), System.Globalization.NumberStyles.HexNumber, null, out int rgb)) return;
+        int immersiveDark = dark ? 1 : 0;
+        int caption = ((rgb & 0xff) << 16) | (rgb & 0x00ff00) | ((rgb >> 16) & 0xff);
+        int text = dark ? 0x00ffffff : 0x00202020;
+        DwmSetWindowAttribute(Handle, 20, ref immersiveDark, sizeof(int));
+        // Caption and text colors are supported on Windows 11; older versions use system colors.
+        DwmSetWindowAttribute(Handle, 35, ref caption, sizeof(int));
+        DwmSetWindowAttribute(Handle, 36, ref text, sizeof(int));
+    }
+
 
     public ReaderWindow(bool smokeTest)
     {
@@ -60,6 +79,23 @@ internal sealed class ReaderWindow : Form
                     e.Cancel = true;
             };
             core.NewWindowRequested += (_, e) => e.Handled = true;
+            core.WebMessageReceived += (_, e) =>
+            {
+                if (!Uri.TryCreate(e.Source, UriKind.Absolute, out var origin) || origin.Scheme != "https" || origin.Host != AppHost) return;
+                try
+                {
+                    using var message = JsonDocument.Parse(e.WebMessageAsJson);
+                    var root = message.RootElement;
+                    if (root.GetProperty("op").GetString() == "setTheme")
+                    {
+                        lastThemeColor = root.GetProperty("color").GetString() ?? "";
+                        ApplyTitleBar(lastThemeColor, root.GetProperty("dark").GetBoolean());
+                    }
+                }
+                catch (JsonException) { }
+                catch (InvalidOperationException) { }
+                catch (KeyNotFoundException) { }
+            };
             core.ContainsFullScreenElementChanged += (_, _) => SetFullScreen(core.ContainsFullScreenElement);
             if (smokeTest)
             {
@@ -68,8 +104,12 @@ internal sealed class ReaderWindow : Form
                     try
                     {
                         if (!e.IsSuccess) throw new InvalidOperationException("Page navigation failed.");
-                        string result = await core.ExecuteScriptAsync("(() => { localStorage.setItem('smoke', 'ok'); return document.getElementById('play') && document.getElementById('language') && localStorage.getItem('smoke') === 'ok' ? 'ok' : 'failed'; })()");
-                        if (result != "\"ok\"") throw new InvalidOperationException("Interface or storage check failed: " + result);
+                        await Task.Delay(1000);
+                        string result = await core.ExecuteScriptAsync("(() => { const picker = document.getElementById('theme'); if (!picker || document.getElementById('play').disabled) return 'failed'; picker.value = 'blue'; picker.dispatchEvent(new Event('change', { bubbles: true })); return getComputedStyle(document.documentElement).getPropertyValue('--ui-bar').trim(); })()");
+                        await Task.Delay(500);
+                        string saved = await core.ExecuteScriptAsync("JSON.parse(localStorage.getItem('quietprompt-v3:state') || '{}').prefs?.theme || ''");
+                        if (result != "\"#c3e4f8\"" || saved != "\"blue\"" || lastThemeColor != "#c3e4f8")
+                            throw new InvalidOperationException("Theme, title bar, or storage check failed.");
                         Environment.ExitCode = 0;
                     }
                     catch { Environment.ExitCode = 1; }

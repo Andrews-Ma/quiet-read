@@ -9,7 +9,8 @@
   const viewport = $('viewport');
   const native = Boolean(window.webkit?.messageHandlers?.native);
   const OLD = 'quietprompt-v2';
-  const defaultPrefs = {speed: 180, speedMin: 150, speedMax: 200, font: 44, countdown: true, focus: false, language: 'en'};
+  const themes = ['dark', 'paper', 'white', 'green', 'blue', 'nightblue'];
+  const defaultPrefs = {speed: 180, speedMin: 150, speedMax: 200, font: 44, countdown: true, focus: false, language: 'en', theme: 'dark'};
   let state = {version: 3, currentId: '', prefs: {...defaultPrefs}, positions: {}, recent: []};
   let book = null, rows = [], nodes = [], prefix = [], tops = [], heights = [];
   let total = 0, cursor = 0, index = -1, playing = false, counting = false;
@@ -41,7 +42,8 @@
       font: Math.max(28, Math.min(72, +p?.font || 44)),
       countdown: typeof p?.countdown === 'boolean' ? p.countdown : true,
       focus: typeof p?.focus === 'boolean' ? p.focus : false,
-      language: p?.language === 'zh' ? 'zh' : 'en'};
+      language: p?.language === 'zh' ? 'zh' : 'en',
+      theme: themes.includes(p?.theme) ? p.theme : 'dark'};
   }
   function banner(key, values = {}) {
     bannerSpec = {key, values}; $('bannerText').textContent = t(key, values); $('banner').hidden = false;
@@ -130,8 +132,17 @@
     if (bannerSpec && !$('banner').hidden) $('bannerText').textContent = t(bannerSpec.key, bannerSpec.values);
     if (native) window.webkit.messageHandlers.native.postMessage({op: 'setLanguage', language: state.prefs.language});
   }
+  function applyTheme() {
+    const root = document.documentElement;
+    root.dataset.theme = state.prefs.theme;
+    const style = getComputedStyle(root);
+    const message = {op: 'setTheme', color: style.getPropertyValue('--ui-bar').trim(), dark: style.colorScheme === 'dark'};
+    if (native) window.webkit.messageHandlers.native.postMessage(message);
+    else window.chrome?.webview?.postMessage(message);
+  }
   function preferencesUI() {
     state.prefs = normalizePrefs(state.prefs);
+    $('theme').value = state.prefs.theme; applyTheme();
     $('font').value = state.prefs.font; $('fontValue').textContent = state.prefs.font;
     document.documentElement.style.setProperty('--size', state.prefs.font + 'px');
     $('countdown').checked = state.prefs.countdown; $('focus').checked = state.prefs.focus;
@@ -354,6 +365,10 @@
   $('play').onclick = toggle; $('prev').onclick = () => go(index - 1); $('next').onclick = () => go(index + 1);
   $('settings').onclick = () => panel($('panel').hidden); $('close').onclick = () => panel(false);
   $('dismiss').onclick = () => { $('banner').hidden = true; };
+  $('theme').onchange = event => {
+    state.prefs.theme = themes.includes(event.target.value) ? event.target.value : 'dark';
+    applyTheme(); queueSave();
+  };
   $('language').onchange = event => { state.prefs.language = event.target.value === 'zh' ? 'zh' : 'en'; applyLanguage(); queueSave(); };
   $('books').onchange = event => { const id = event.target.value; void selectBook(id); };
   $('scene').onchange = event => go(+event.target.value);
