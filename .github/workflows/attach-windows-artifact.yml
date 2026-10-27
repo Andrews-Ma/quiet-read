@@ -1,0 +1,47 @@
+name: Attach verified Windows build
+on:
+  workflow_dispatch:
+    inputs:
+      run_id:
+        description: Successful Windows build run ID
+        required: true
+      tag:
+        description: Draft release tag
+        required: true
+permissions:
+  actions: read
+  contents: write
+jobs:
+  attach:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify build and draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RUN_ID: ${{ inputs.run_id }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        shell: bash
+        run: |
+          [[ "$RUN_ID" =~ ^[0-9]+$ ]]
+          test "$(gh api "repos/$GH_REPO/actions/runs/$RUN_ID" --jq '.name')" = 'Windows build and smoke test'
+          test "$(gh api "repos/$GH_REPO/actions/runs/$RUN_ID" --jq '.conclusion')" = 'success'
+          test "$(gh release view "$RELEASE_TAG" --json isDraft --jq .isDraft)" = 'true'
+      - uses: actions/download-artifact@v4
+        with:
+          name: QuietRead-Windows-x64
+          path: release-files
+          run-id: ${{ inputs.run_id }}
+          github-token: ${{ github.token }}
+      - name: Check and attach assets to draft
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ inputs.tag }}
+        shell: bash
+        run: |
+          cd release-files
+          expected=$(tr -d '\r\n ' < QuietRead-Windows-x64.sha256 | tr '[:upper:]' '[:lower:]')
+          actual=$(sha256sum QuietRead-Windows-x64.zip | cut -d ' ' -f 1)
+          test "$expected" = "$actual"
+          gh release upload "$RELEASE_TAG" QuietRead-Windows-x64.zip QuietRead-Windows-x64.sha256
