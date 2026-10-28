@@ -9,8 +9,23 @@
   const viewport = $('viewport');
   const native = Boolean(window.webkit?.messageHandlers?.native);
   const OLD = 'quietprompt-v2';
-  const themes = ['dark', 'paper', 'white', 'green', 'blue', 'nightblue'];
-  const defaultPrefs = {speed: 180, speedMin: 150, speedMax: 200, font: 44, countdown: true, focus: false, language: 'en', theme: 'dark'};
+  const themes = new Set(Array.from($('theme').options, option => option.value));
+  const readingFonts = {
+    system: 'system-ui, -apple-system, "PingFang SC", sans-serif',
+    sans: 'Arial, "PingFang SC", "Microsoft YaHei", sans-serif',
+    serif: 'Georgia, "Songti SC", SimSun, serif',
+    song: '"Songti SC", SimSun, "Noto Serif CJK SC", "Times New Roman", serif',
+    kai: '"Kaiti SC", STKaiti, KaiTi, "Noto Serif CJK SC", serif',
+    rounded: '"Arial Rounded MT Bold", "Yuanti SC", STYuanti, "Microsoft YaHei", sans-serif',
+    mono: 'Menlo, Consolas, "PingFang SC", "Microsoft YaHei", monospace'
+  };
+  const layoutOptions = {
+    alignment: {left: 'left', center: 'center', right: 'right'},
+    lineSpacing: {compact: '1.45', normal: '1.85', relaxed: '2.2'},
+    columnWidth: {narrow: '680px', normal: '940px', wide: '1200px'}
+  };
+  const layoutVariables = {alignment: '--reading-align', lineSpacing: '--reading-line-height', columnWidth: '--reading-width'};
+  const defaultPrefs = {speed: 180, speedMin: 150, speedMax: 200, font: 44, fontFamily: 'system', alignment: 'left', lineSpacing: 'normal', columnWidth: 'normal', countdown: true, focus: false, language: 'en', theme: 'breeze'};
   let state = {version: 3, currentId: '', prefs: {...defaultPrefs}, positions: {}, recent: []};
   let book = null, rows = [], nodes = [], prefix = [], tops = [], heights = [];
   let total = 0, cursor = 0, index = -1, playing = false, counting = false;
@@ -40,10 +55,12 @@
     const previousSpeed = Number.isFinite(+p?.speed) && +p.speed > 0 ? +p.speed : 180;
     return {speed: engine.nearestSpeed(speeds, previousSpeed), speedMin, speedMax,
       font: Math.max(28, Math.min(72, +p?.font || 44)),
+      fontFamily: Object.hasOwn(readingFonts, p?.fontFamily) ? p.fontFamily : defaultPrefs.fontFamily,
+      ...Object.fromEntries(Object.entries(layoutOptions).map(([key, options]) => [key, Object.hasOwn(options, p?.[key]) ? p[key] : defaultPrefs[key]])),
       countdown: typeof p?.countdown === 'boolean' ? p.countdown : true,
       focus: typeof p?.focus === 'boolean' ? p.focus : false,
       language: p?.language === 'zh' ? 'zh' : 'en',
-      theme: themes.includes(p?.theme) ? p.theme : 'dark'};
+      theme: themes.has(p?.theme) ? p.theme : defaultPrefs.theme};
   }
   function banner(key, values = {}) {
     bannerSpec = {key, values}; $('bannerText').textContent = t(key, values); $('banner').hidden = false;
@@ -143,6 +160,12 @@
   function preferencesUI() {
     state.prefs = normalizePrefs(state.prefs);
     $('theme').value = state.prefs.theme; applyTheme();
+    $('fontFamily').value = state.prefs.fontFamily;
+    document.documentElement.style.setProperty('--reading-font', readingFonts[state.prefs.fontFamily]);
+    for (const [key, options] of Object.entries(layoutOptions)) {
+      $(key).value = state.prefs[key];
+      document.documentElement.style.setProperty(layoutVariables[key], options[state.prefs[key]]);
+    }
     $('font').value = state.prefs.font; $('fontValue').textContent = state.prefs.font;
     document.documentElement.style.setProperty('--size', state.prefs.font + 'px');
     $('countdown').checked = state.prefs.countdown; $('focus').checked = state.prefs.focus;
@@ -208,6 +231,7 @@
   function panel(open) {
     $('panel').hidden = $('panelBackdrop').hidden = !open;
     $('settings').setAttribute('aria-expanded', String(open));
+    if (open) $('panel').scrollTop = 0;
   }
   function applySpeedRange() {
     const minText = $('speedMin').value.trim(), maxText = $('speedMax').value.trim();
@@ -308,12 +332,14 @@
     const sameNameChanged = fromImport && state.recent.some(item => item.title === next.title && item.id !== next.id);
     const oldPosition = state.positions[next.id];
     activate(next, oldPosition?.cursor || 0);
-    state.currentId = next.id; setRecent(next); selectionRequired = false; storageFailed = false;
+    state.currentId = next.id; setRecent(next); refreshBooks(); selectionRequired = false; storageFailed = false;
     $('storage').textContent = t('storageOK');
     closePanel(); queueSave();
-    const notices = [...(next.warnings || [])];
-    if (sameNameChanged && !oldPosition) notices.unshift({key: 'changedVersion'});
-    if (notices.length) { $('bannerText').textContent = notices.map(w => typeof w === 'string' ? w : t(w.key, w.values)).join(' '); $('banner').hidden = false; bannerSpec = null; }
+    if (!storageFailed) { $('banner').hidden = true; bannerSpec = null; }
+    if (sameNameChanged && !oldPosition) {
+      if (next.format === 'Markdown') $('bookWarnings').textContent = [t('changedVersion'), $('bookWarnings').textContent].filter(Boolean).join(' ');
+      else banner('changedVersion');
+    }
   }
   async function selectBook(id) {
     try {
@@ -394,9 +420,21 @@
   $('close').onclick = closePanel; $('panelBackdrop').onclick = closePanel;
   $('dismiss').onclick = () => { $('banner').hidden = true; };
   $('theme').onchange = event => {
-    state.prefs.theme = themes.includes(event.target.value) ? event.target.value : 'dark';
+    state.prefs.theme = themes.has(event.target.value) ? event.target.value : defaultPrefs.theme;
     applyTheme(); queueSave();
   };
+  $('fontFamily').onchange = event => {
+    state.prefs.fontFamily = Object.hasOwn(readingFonts, event.target.value) ? event.target.value : defaultPrefs.fontFamily;
+    document.documentElement.style.setProperty('--reading-font', readingFonts[state.prefs.fontFamily]);
+    scheduleMeasure(); document.fonts.ready.then(scheduleMeasure); queueSave();
+  };
+  for (const [key, options] of Object.entries(layoutOptions)) {
+    $(key).onchange = event => {
+      state.prefs[key] = Object.hasOwn(options, event.target.value) ? event.target.value : defaultPrefs[key];
+      document.documentElement.style.setProperty(layoutVariables[key], options[state.prefs[key]]);
+      scheduleMeasure(); queueSave();
+    };
+  }
   $('language').onchange = event => { state.prefs.language = event.target.value === 'zh' ? 'zh' : 'en'; applyLanguage(); queueSave(); };
   $('books').onchange = event => { const id = event.target.value; void selectBook(id); };
   $('scene').onchange = event => go(+event.target.value);
@@ -417,7 +455,13 @@
     try { await importText(await file.text(), file.name); } catch (error) { banner('fileReadFailure'); }
     event.target.value = '';
   };
-  $('usePaste').onclick = async () => { if (await importText($('paste').value, t('pasted'))) $('paste').value = ''; };
+  $('usePaste').onclick = async () => {
+    const name = $('pasteFormat').value === 'md' ? t('pastedMarkdown') : t('pasted');
+    if (await importText($('paste').value, name)) {
+      $('paste').value = '';
+      $('paste').closest('details').open = false;
+    }
+  };
   $('full').onclick = async () => {
     if (native) { window.webkit.messageHandlers.native.postMessage('fullscreen'); return; }
     try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); }

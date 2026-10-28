@@ -6,7 +6,7 @@ root = Path(__file__).resolve().parent.parent
 css = (root / 'src/web/style.css').read_text(encoding='utf-8')
 html = (root / 'src/web/template.html').read_text(encoding='utf-8')
 themes = re.findall(r'<option value="([a-z]+)" data-i18n="theme', html)
-assert len(themes) == 6 and len(set(themes)) == 6
+assert len(themes) == 11 and len(set(themes)) == len(themes)
 rules = re.findall(r'([^{}]+)\{([^{}]+)\}', css)
 
 def luminance(color):
@@ -32,4 +32,9 @@ for theme in themes:
     for foreground, background in pairs:
         contrast = ratio(values[foreground], values[background])
         assert contrast >= 4.5, f'{theme}: {foreground} on {background} is {contrast:.2f}'
-print('Passed: text and control contrast for all six themes.')
+    if theme == 'breeze':
+        for foreground in ('ui-text', 'ui-muted'):
+            for background in ('ui-bar-start', 'ui-bar-end'):
+                contrast = ratio(values[foreground], values[background])
+                assert contrast >= 4.5, f'{theme}: {foreground} on {background} is {contrast:.2f}'
+print(f'Passed: text and control contrast for all {len(themes)} themes, including gradient endpoints.')

@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" data-theme="breeze">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -31,43 +31,81 @@
   </footer>
   <div id="panelBackdrop" hidden aria-hidden="true"></div>
   <aside id="panel" hidden>
-    <button id="close" aria-label="Close settings" data-i18n="close" data-i18n-aria="closeSettings">Close</button>
-    <h2 data-i18n="settingsTitle">Script and settings</h2>
-    <label for="language" data-i18n="language">Language</label>
-    <select id="language"><option value="en">English</option><option value="zh">中文</option></select>
-    <div class="row"><button id="open" data-i18n="import">Import TXT / Markdown…</button></div>
-    <input id="file" type="file" accept=".txt,.md,.markdown,text/plain,text/markdown">
-    <label for="books" data-i18n="recent">Recent scripts</label><select id="books"></select>
-    <p id="bookInfo" class="document-info"></p><p id="bookWarnings"></p>
-    <label for="scene" data-i18n="section">Section</label><select id="scene"></select>
-    <label data-i18n="speedRange">Speed range (characters per minute)</label>
-    <div class="row speed-range">
-      <label for="speedMin"><span data-i18n="minimum">Minimum</span><input id="speedMin" type="number" min="1" max="1000" step="1" inputmode="numeric" aria-describedby="speedRangeMessage"></label>
-      <label for="speedMax"><span data-i18n="maximum">Maximum</span><input id="speedMax" type="number" min="1" max="1000" step="1" inputmode="numeric" aria-describedby="speedRangeMessage"></label>
-      <button id="applySpeedRange" type="button" data-i18n="applyRange">Apply range</button>
+    <div class="settings-heading">
+      <h2 data-i18n="settingsTitle">Script and settings</h2>
+      <button id="close" aria-label="Close settings" data-i18n="close" data-i18n-aria="closeSettings">Close</button>
     </div>
-    <p id="speedRangeMessage" role="status" aria-live="polite"></p>
-    <label for="theme" data-i18n="theme">Color theme</label>
-    <select id="theme">
+    <section class="settings-group">
+      <h3 data-i18n="scriptGroup">Script</h3>
+      <div class="row"><button id="open" data-i18n="import">Import TXT / Markdown…</button></div>
+      <input id="file" type="file" accept=".txt,.md,.markdown,text/plain,text/markdown">
+      <label for="books" data-i18n="recent">Recent scripts</label><select id="books"></select>
+      <p id="bookInfo" class="document-info"></p><p id="bookWarnings"></p>
+      <label for="scene" data-i18n="section">Section</label><select id="scene"></select>
+      <details class="settings-details">
+        <summary data-i18n="pasteLabel">Or paste a script</summary>
+        <label for="pasteFormat" data-i18n="pasteFormat">Pasted text format</label>
+        <select id="pasteFormat"><option value="txt" data-i18n="plainText">Plain text</option><option value="md">Markdown</option></select>
+        <label for="paste" data-i18n="pasteLabel">Or paste a script</label>
+        <textarea id="paste" placeholder="Paste your script" data-i18n-placeholder="pastePlaceholder"></textarea>
+        <button id="usePaste" data-i18n="loadText">Load text</button>
+      </details>
+    </section>
+    <section class="settings-group">
+      <h3 data-i18n="layoutGroup">Reading layout</h3>
+      <label for="font"><span data-i18n="fontSize">Font size</span> <span id="fontValue">44</span></label>
+      <input id="font" type="range" min="28" max="72" step="2" value="44">
+      <label for="alignment" data-i18n="alignment">Text alignment</label>
+      <select id="alignment"><option value="left" data-i18n="alignLeft">Left</option><option value="center" data-i18n="alignCenter">Center</option><option value="right" data-i18n="alignRight">Right</option></select>
+      <label for="lineSpacing" data-i18n="lineSpacing">Line spacing</label>
+      <select id="lineSpacing"><option value="compact" data-i18n="spacingCompact">Compact</option><option value="normal" data-i18n="spacingNormal">Normal</option><option value="relaxed" data-i18n="spacingRelaxed">Relaxed</option></select>
+      <label for="columnWidth" data-i18n="columnWidth">Text width</label>
+      <select id="columnWidth"><option value="narrow" data-i18n="widthNarrow">Narrow</option><option value="normal" data-i18n="widthNormal">Normal</option><option value="wide" data-i18n="widthWide">Wide</option></select>
+      <label for="fontFamily" data-i18n="fontFamily">Reading font</label>
+      <select id="fontFamily">
+        <option value="system" data-i18n="fontSystem">System default</option><option value="sans" data-i18n="fontSans">Sans serif</option>
+        <option value="serif" data-i18n="fontSerif">Serif</option><option value="song" data-i18n="fontSong">Song / Ming</option>
+        <option value="kai" data-i18n="fontKai">Kai</option><option value="rounded" data-i18n="fontRounded">Rounded</option><option value="mono" data-i18n="fontMono">Monospace</option>
+      </select>
+      <p data-i18n="fontAvailability">Fonts depend on your system; missing fonts use a suitable fallback.</p>
+    </section>
+    <section class="settings-group">
+      <h3 data-i18n="playbackGroup">Reading controls</h3>
+      <label data-i18n="speedRange">Speed range (characters per minute)</label>
+      <div class="row speed-range">
+        <label for="speedMin"><span data-i18n="minimum">Minimum</span><input id="speedMin" type="number" min="1" max="1000" step="1" inputmode="numeric" aria-describedby="speedRangeMessage"></label>
+        <label for="speedMax"><span data-i18n="maximum">Maximum</span><input id="speedMax" type="number" min="1" max="1000" step="1" inputmode="numeric" aria-describedby="speedRangeMessage"></label>
+        <button id="applySpeedRange" type="button" data-i18n="applyRange">Apply range</button>
+      </div>
+      <p id="speedRangeMessage" role="status" aria-live="polite"></p>
+      <label><input id="countdown" type="checkbox" checked> <span data-i18n="countdown">Silent 3-second countdown</span></label>
+      <label><input id="focus" type="checkbox"> <span data-i18n="focus">Hide toolbar while reading (Esc to show)</span></label>
+    </section>
+    <details class="settings-group settings-details">
+      <summary data-i18n="appearanceGroup">Appearance and language</summary>
+      <label for="theme" data-i18n="theme">Color theme</label>
+      <select id="theme">
+      <option value="breeze" data-i18n="themeBreeze">Blue breeze</option>
       <option value="dark" data-i18n="themeDark">Dark</option>
       <option value="paper" data-i18n="themePaper">Warm paper</option>
       <option value="white" data-i18n="themeWhite">Soft white</option>
       <option value="green" data-i18n="themeGreen">Soft green</option>
       <option value="blue" data-i18n="themeBlue">Sky blue</option>
       <option value="nightblue" data-i18n="themeNightBlue">Night blue</option>
-    </select>
-    <label for="font"><span data-i18n="fontSize">Font size</span> <span id="fontValue">44</span></label>
-    <input id="font" type="range" min="28" max="72" step="2" value="44">
-    <label><input id="countdown" type="checkbox" checked> <span data-i18n="countdown">Silent 3-second countdown</span></label>
-    <label><input id="focus" type="checkbox"> <span data-i18n="focus">Hide toolbar while reading (Esc to show)</span></label>
-    <label for="paste" data-i18n="pasteLabel">Or paste a script</label>
-    <textarea id="paste" placeholder="Paste your script" data-i18n-placeholder="pastePlaceholder"></textarea>
-    <button id="usePaste" data-i18n="loadText">Load text</button>
+      <option value="sepia" data-i18n="themeSepia">Sepia</option>
+      <option value="lavender" data-i18n="themeLavender">Lavender</option>
+      <option value="rose" data-i18n="themeRose">Soft rose</option>
+      <option value="charcoal" data-i18n="themeCharcoal">Charcoal</option>
+      </select>
+      <label for="language" data-i18n="language">Language</label>
+      <select id="language"><option value="en">English</option><option value="zh">中文</option></select>
+    </details>
     <p data-i18n="shortcuts">Space: start / pause. Arrow keys: previous / next paragraph. Scrolling pauses. Speed is an estimate; the app does not record.</p>
     <p id="storage"></p>
   </aside>
   <script id="builtins" type="application/json">__BUILTINS__</script>
   <script>__I18N__</script>
+  <script>__MARKED__</script>
   <script>__ENGINE__</script>
   <script>__STORAGE__</script>
   <script>__APPLICATION__</script>

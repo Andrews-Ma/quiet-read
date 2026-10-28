@@ -1,6 +1,11 @@
 :root {
   color-scheme:dark;
   --size:44px;
+  --reading-font:system-ui,-apple-system,"PingFang SC",sans-serif;
+  --reading-align:left;
+  --reading-line-height:1.85;
+  --reading-width:940px;
+  --ui-bar-image:none;
   --reading-bg:#131819;
   --reading-cue:#94a69d;
   --reading-active:#ddf9e7;
@@ -22,16 +27,40 @@
   --ui-warning-bg:#55462e;
   --ui-warning-text:#fff2cb}
 
+:root[data-theme="breeze"],
 :root[data-theme="paper"],
 :root[data-theme="white"],
 :root[data-theme="green"],
-:root[data-theme="blue"] {
+:root[data-theme="blue"],
+:root[data-theme="sepia"],
+:root[data-theme="lavender"],
+:root[data-theme="rose"] {
   color-scheme:light;
   --ui-selected-text:#ffffff;
   --ui-error-bg:#f8dcd8;
   --ui-error-text:#7e271d;
   --ui-warning-bg:#f9e9bf;
   --ui-warning-text:#65420c}
+
+:root[data-theme="breeze"] {
+  --reading-bg:#eaf8ff;
+  --reading-cue:#345b73;
+  --reading-active:#10334d;
+  --reading-marker:#086db4;
+  --ui-bar:#b5e4fb;
+  --ui-bar-start:#d3f4ff;
+  --ui-bar-end:#77c7fa;
+  --ui-bar-image:linear-gradient(105deg,var(--ui-bar-start),var(--ui-bar-end));
+  --ui-panel:#f3fbff;
+  --ui-control:#e4f6ff;
+  --ui-hover:#c9ebfc;
+  --ui-border:#75b4d7;
+  --ui-panel-border:#83bad8;
+  --ui-text:#10344d;
+  --ui-muted:#244b64;
+  --ui-selected:#086daf;
+  --ui-focus:#0867a5;
+  --ui-input:#fbfeff}
 
 :root[data-theme="paper"] {
   --reading-bg:#f6f1e4;
@@ -120,6 +149,75 @@
   --ui-selected-text:#103148;
   --ui-focus:#8cdcff;
   --ui-input:#142f45}
+
+:root[data-theme="sepia"] {
+  --reading-bg:#f1e7d3;
+  --reading-cue:#5d4c39;
+  --reading-active:#302217;
+  --reading-marker:#79512e;
+  --ui-bar:#e4d3b4;
+  --ui-panel:#f7efdf;
+  --ui-control:#f2e6d1;
+  --ui-hover:#e9d8bd;
+  --ui-border:#ac9270;
+  --ui-panel-border:#b29977;
+  --ui-text:#3b2b1c;
+  --ui-muted:#5b4936;
+  --ui-selected:#795334;
+  --ui-focus:#795334;
+  --ui-input:#fff9ed}
+
+:root[data-theme="lavender"] {
+  --reading-bg:#f0edf8;
+  --reading-cue:#554c66;
+  --reading-active:#30263e;
+  --reading-marker:#675188;
+  --ui-bar:#ddd6ef;
+  --ui-panel:#f8f5fd;
+  --ui-control:#f0ebf9;
+  --ui-hover:#e5dcf4;
+  --ui-border:#a59abc;
+  --ui-panel-border:#a99dbf;
+  --ui-text:#352b45;
+  --ui-muted:#544763;
+  --ui-selected:#6b5287;
+  --ui-focus:#644a83;
+  --ui-input:#fefcff}
+
+:root[data-theme="rose"] {
+  --reading-bg:#f9eeee;
+  --reading-cue:#694c51;
+  --reading-active:#3e262c;
+  --reading-marker:#92546a;
+  --ui-bar:#f0d9dc;
+  --ui-panel:#fff8f8;
+  --ui-control:#f9eaec;
+  --ui-hover:#f1dce0;
+  --ui-border:#c29ba4;
+  --ui-panel-border:#c4a0a9;
+  --ui-text:#442c31;
+  --ui-muted:#684950;
+  --ui-selected:#92536a;
+  --ui-focus:#85455c;
+  --ui-input:#fffdfd}
+
+:root[data-theme="charcoal"] {
+  --reading-bg:#202226;
+  --reading-cue:#b0b6ba;
+  --reading-active:#f1f4f5;
+  --reading-marker:#d2e4ea;
+  --ui-bar:#2b3033;
+  --ui-panel:#363c40;
+  --ui-control:#394044;
+  --ui-hover:#485156;
+  --ui-border:#657178;
+  --ui-panel-border:#6d7b81;
+  --ui-text:#f1f4f5;
+  --ui-muted:#c7d1d5;
+  --ui-selected:#c4dde6;
+  --ui-selected-text:#172f38;
+  --ui-focus:#b7dbe7;
+  --ui-input:#20272a}
 * {
   box-sizing:border-box}
 body {
@@ -164,6 +262,7 @@ header {
   gap:9px;
   padding:9px 15px;
   background:var(--ui-bar);
+  background-image:var(--ui-bar-image);
   z-index:2}
 header[hidden],aside[hidden],#panelBackdrop[hidden],#count[hidden],#banner[hidden] {
   display:none}
@@ -193,11 +292,13 @@ main {
   scroll-behavior:auto;
   background:var(--reading-bg)}
 #text {
-  max-width:940px;
+  max-width:var(--reading-width);
   margin:auto;
   padding:38vh 50px 85vh;
+  font-family:var(--reading-font);
   font-size:var(--size);
-  line-height:1.85;
+  line-height:var(--reading-line-height);
+  text-align:var(--reading-align);
   letter-spacing:.02em;
   overflow-wrap:anywhere}
 p.cue {
@@ -228,6 +329,7 @@ footer {
   gap:10px;
   padding:5px 14px;
   background:var(--ui-bar);
+  background-image:var(--ui-bar-image);
   font-size:12px;
   color:var(--ui-muted)}
 #seek {
@@ -279,9 +381,26 @@ aside {
   border-radius:12px;
   padding:18px;
   box-shadow:0 16px 50px #0008}
-aside h2 {
+.settings-heading {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px}
+.settings-heading h2 {
   font-size:16px;
-  margin:0 0 14px}
+  margin:0}
+.settings-group {
+  border-top:1px solid var(--ui-panel-border);
+  margin-top:16px;
+  padding-top:14px}
+.settings-group h3, .settings-details summary {
+  font-size:14px;
+  font-weight:650;
+  margin:0 0 10px}
+.settings-details summary {
+  cursor:pointer}
+.settings-details:not(.settings-group) {
+  margin-top:15px}
 aside label {
   display:block;
   font-size:14px;
@@ -326,8 +445,6 @@ aside .document-info {
   display:flex;
   gap:8px;
   flex-wrap:wrap}
-#close {
-  float:right}
 @media(max-width:720px) {
   header {
   gap:6px;

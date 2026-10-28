@@ -33,6 +33,7 @@ jobs:
         shell: pwsh
         run: |
           Copy-Item LICENSE build/windows/LICENSE.txt
+          Copy-Item src/web/vendor/MARKED-LICENSE.md build/windows/MARKED-LICENSE.txt
           Compress-Archive -Path build/windows/* -DestinationPath QuietRead-Windows-x64.zip
           (Get-FileHash QuietRead-Windows-x64.zip -Algorithm SHA256).Hash | Out-File -Encoding ascii QuietRead-Windows-x64.sha256
       - uses: actions/upload-artifact@v4

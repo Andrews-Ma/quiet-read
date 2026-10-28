@@ -122,6 +122,9 @@ internal sealed class ReaderWindow : Form
                                 layer.click();
                               };
                               el('settings').click();
+                              const closeBottom = el('close').getBoundingClientRect().bottom;
+                              const dividerTop = document.querySelector('.settings-group').getBoundingClientRect().top;
+                              expect(dividerTop - closeBottom >= 8, 'Close button overlaps the divider');
                               el('speedMin').value = '100'; el('speedMax').value = '300';
                               el('paste').value = 'An example draft';
                               const title = el('title').textContent, position = el('position').textContent;
@@ -150,6 +153,17 @@ internal sealed class ReaderWindow : Form
                         string speedSaved = await core.ExecuteScriptAsync("(() => { const p = JSON.parse(localStorage.getItem('quietprompt-v3:state') || '{}').prefs; return p ? `${p.speedMin},${p.speedMax}` : ''; })()");
                         if (settingsCheck != "\"passed\"" || speedSaved != "\"120,240\"")
                             throw new InvalidOperationException("Settings dismissal or saved speed range check failed: " + settingsCheck);
+                        await core.ExecuteScriptAsync("""window.importNovel('# Sample\n\nHello **there**.', 'sample.md')""");
+                        await Task.Delay(500);
+                        string importCheck = await core.ExecuteScriptAsync("""
+                            (() => {
+                              const el = id => document.getElementById(id);
+                              if (!el('banner').hidden || el('title').textContent !== 'sample.md' || el('text').textContent !== 'Hello there.') return 'failed';
+                              el('settings').click();
+                              return el('books').selectedOptions[0]?.textContent === 'sample.md' && el('bookWarnings').textContent ? 'passed' : 'failed';
+                            })()
+                            """);
+                        if (importCheck != "\"passed\"") throw new InvalidOperationException("Markdown import check failed: " + importCheck);
                         Environment.ExitCode = 0;
                     }
                     catch (Exception ex) { Console.Error.WriteLine(ex); Environment.ExitCode = 1; }

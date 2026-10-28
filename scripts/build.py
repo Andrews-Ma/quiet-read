@@ -38,6 +38,7 @@ def create_html():
         '__STYLE__': (WEB / 'style.css').read_text(encoding='utf-8'),
         '__BUILTINS__': json.dumps([example_script()], ensure_ascii=False).replace('<', '\\u003c'),
         '__I18N__': (WEB / 'i18n.js').read_text(encoding='utf-8'),
+        '__MARKED__': '/*\n' + (WEB / 'vendor' / 'MARKED-LICENSE.md').read_text(encoding='utf-8') + '\n*/\n' + (WEB / 'vendor' / 'marked.umd.js').read_text(encoding='utf-8'),
         '__ENGINE__': (WEB / 'engine.js').read_text(encoding='utf-8'),
         '__STORAGE__': (WEB / 'storage.js').read_text(encoding='utf-8'),
         '__APPLICATION__': (WEB / 'app.js').read_text(encoding='utf-8'),
@@ -76,12 +77,13 @@ def build(args):
     (contents / 'Resources').mkdir()
     html = create_html()
     (contents / 'Resources/index.html').write_text(html, encoding='utf-8')
+    shutil.copyfile(WEB / 'vendor' / 'MARKED-LICENSE.md', contents / 'Resources' / 'MARKED-LICENSE.txt')
     (output / 'QuietRead.html').write_text(html, encoding='utf-8')
     create_icon(contents / 'Resources/AppIcon.icns', output)
     info = {
         'CFBundleName': args.name, 'CFBundleDisplayName': args.name,
-        'CFBundleIdentifier': args.bundle_id, 'CFBundleVersion': '3.5',
-        'CFBundleShortVersionString': '3.5', 'CFBundleExecutable': 'QuietRead',
+        'CFBundleIdentifier': args.bundle_id, 'CFBundleVersion': '3.6',
+        'CFBundleShortVersionString': '3.6', 'CFBundleExecutable': 'QuietRead',
         'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'AppIcon',
         'LSMinimumSystemVersion': '15.0', 'NSHighResolutionCapable': True,
         'CFBundleDevelopmentRegion': 'en', 'QuietReadStorageDirectory': args.storage_dir,
