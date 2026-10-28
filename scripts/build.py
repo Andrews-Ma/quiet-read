@@ -82,8 +82,8 @@ def build(args):
     create_icon(contents / 'Resources/AppIcon.icns', output)
     info = {
         'CFBundleName': args.name, 'CFBundleDisplayName': args.name,
-        'CFBundleIdentifier': args.bundle_id, 'CFBundleVersion': '3.6',
-        'CFBundleShortVersionString': '3.6', 'CFBundleExecutable': 'QuietRead',
+        'CFBundleIdentifier': args.bundle_id, 'CFBundleVersion': '3.7',
+        'CFBundleShortVersionString': '3.7', 'CFBundleExecutable': 'QuietRead',
         'CFBundlePackageType': 'APPL', 'CFBundleIconFile': 'AppIcon',
         'LSMinimumSystemVersion': '15.0', 'NSHighResolutionCapable': True,
         'CFBundleDevelopmentRegion': 'en', 'QuietReadStorageDirectory': args.storage_dir,

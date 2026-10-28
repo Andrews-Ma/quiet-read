@@ -143,8 +143,18 @@
     const prefix = rows.map(row => { const start = total; total += row.text.length; return start; });
     return {prefix, total};
   }
-  function advance(cursor, speed, elapsedSeconds, total) {
-    return Math.min(total, Math.max(0, cursor + speed / 60 * Math.min(.25, Math.max(0, elapsedSeconds))));
+  function scrollVelocity(firstTop, lastEnd, total, charactersPerMinute) {
+    return total > 0 ? Math.max(0, lastEnd - firstTop) / total * charactersPerMinute / 60 : 0;
+  }
+  function advanceScroll(offset, velocity, elapsed, end) {
+    if (elapsed > 1) return null;
+    return Math.min(end, offset + velocity * Math.max(0, elapsed));
+  }
+  function cursorAtOffset(offset, rows, prefix, tops, heights, total) {
+    let lo = 0, hi = tops.length - 1;
+    while (lo < hi) { const mid = Math.ceil((lo + hi) / 2); if (tops[mid] <= offset) lo = mid; else hi = mid - 1; }
+    const fraction = Math.max(0, Math.min(1, (offset - tops[lo]) / heights[lo]));
+    return Math.max(0, Math.min(total, prefix[lo] + fraction * rows[lo].text.length));
   }
   function speedOptions(minimum, maximum) {
     if (!Number.isInteger(minimum) || !Number.isInteger(maximum) || minimum < 1 || maximum > 1000 || minimum >= maximum) fail('speedInvalid');
@@ -154,5 +164,5 @@
     if (!Number.isFinite(speed)) return options[0];
     return options.reduce((best, value) => Math.abs(value - speed) < Math.abs(best - speed) - 1e-9 ? value : best);
   }
-  return {fingerprint, legacyIdFor, idFor, parseDocument, buildTimeline, advance, speedOptions, nearestSpeed};
+  return {fingerprint, legacyIdFor, idFor, parseDocument, buildTimeline, scrollVelocity, advanceScroll, cursorAtOffset, speedOptions, nearestSpeed};
 });

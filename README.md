@@ -20,6 +20,7 @@ These short, silent demonstrations show the actual QuietRead interface running i
 
 - Import UTF-8 TXT or Markdown, or paste text directly.
 - Choose a custom range from 1 to 1000 characters per minute. Six buttons include both endpoints at equal intervals; a range such as 100–300 produces 100, 140, 180, 220, 260 and 300.
+- Scroll at a steady visual speed across paragraphs. Characters per minute estimates the average across the script, so local reading pace may vary; adjust the setting to suit your delivery. A long interruption pauses scrolling to avoid jumping ahead.
 - Navigate by paragraph, section or progress bar. Configure font size, a silent countdown and a reading-focused view.
 - Choose from eleven color themes that coordinate the reading area, controls and window appearance. New installations use Blue breeze by default.
 - Choose a reading font style; the system supplies available fonts and a fallback where needed.
@@ -32,8 +33,8 @@ The bundled welcome script is a short synthetic example. Imported scripts and re
 
 ## Download and install
 
-- **macOS:** [Download for Apple silicon](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.6.0). Requires macOS 15 or later. Unzip the download and move `QuietRead.app` to Applications.
-- **Windows:** [Download for Windows x64](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.6.0-windows). Requires 64-bit Windows 10 or 11 and the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/). Extract the entire ZIP into a folder and open `QuietRead.exe` there; keep the accompanying files together. Windows SmartScreen may show a warning for the download.
+- **macOS:** [Download for Apple silicon](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.7.0). Requires macOS 15 or later. Unzip the download and move `QuietRead.app` to Applications.
+- **Windows:** [Download for Windows x64](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.7.0-windows). Requires 64-bit Windows 10 or 11 and the [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/). Extract the entire ZIP into a folder and open `QuietRead.exe` there; keep the accompanying files together. Windows SmartScreen may show a warning for the download.
 
 The Windows package includes the .NET runtime; it uses WebView2 for the reading interface.
 

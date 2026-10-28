@@ -1,5 +1,11 @@
 # Changelog
 
+## 3.7
+
+- Keep the visual scrolling speed steady across paragraphs of different lengths.
+- Use actual elapsed frame time; pause after a long interruption to avoid jumping ahead.
+- Clarify that characters per minute estimates the average across the script.
+
 ## 3.6
 
 - Organize settings and add reading alignment, line spacing and column width controls.

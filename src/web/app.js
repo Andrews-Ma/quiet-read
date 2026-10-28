@@ -28,8 +28,8 @@
   const defaultPrefs = {speed: 180, speedMin: 150, speedMax: 200, font: 44, fontFamily: 'system', alignment: 'left', lineSpacing: 'normal', columnWidth: 'normal', countdown: true, focus: false, language: 'en', theme: 'breeze'};
   let state = {version: 3, currentId: '', prefs: {...defaultPrefs}, positions: {}, recent: []};
   let book = null, rows = [], nodes = [], prefix = [], tops = [], heights = [];
-  let total = 0, cursor = 0, index = -1, playing = false, counting = false;
-  let countTimer = null, lastTime = 0, lastSave = 0, layoutPending = false, ignoreScrollUntil = 0;
+  let total = 0, cursor = 0, scrollY = 0, index = -1, playing = false, counting = false;
+  let countTimer = null, lastTime = null, lastSave = 0, layoutPending = false, ignoreScrollUntil = 0;
   let ready = false, storageFailed = false, writeInFlight = false, pendingState = null;
   let selectionRequired = false;
   let noticeKey = 'paused', saveStatus = 'waiting', bannerSpec = null, rangeSpec = null;
@@ -193,7 +193,8 @@
     const i = find(Math.min(cursor, Math.max(0, total - .0001)));
     const fraction = Math.max(0, Math.min(1, (cursor - prefix[i]) / rows[i].text.length));
     ignoreScrollUntil = performance.now() + 120;
-    viewport.scrollTop = tops[i] + heights[i] * fraction - viewport.clientHeight * .32;
+    scrollY = tops[i] + heights[i] * fraction;
+    viewport.scrollTop = scrollY - viewport.clientHeight * .32;
     paint();
   }
   function measure() {
@@ -209,10 +210,8 @@
   }
   function syncCursor() {
     if (!rows.length || tops.length !== rows.length) return;
-    const y = viewport.scrollTop + viewport.clientHeight * .32;
-    let lo = 0, hi = tops.length - 1;
-    while (lo < hi) { const mid = Math.ceil((lo + hi) / 2); if (tops[mid] <= y) lo = mid; else hi = mid - 1; }
-    cursor = Math.max(0, Math.min(total, prefix[lo] + Math.max(0, Math.min(1, (y - tops[lo]) / heights[lo])) * rows[lo].text.length));
+    scrollY = viewport.scrollTop + viewport.clientHeight * .32;
+    cursor = engine.cursorAtOffset(scrollY, rows, prefix, tops, heights, total);
     paint(); queueSave();
   }
   function stop(message = 'paused') {
@@ -224,7 +223,7 @@
   window.pauseForDialog = () => stop();
   function run() {
     playing = true; counting = false; $('count').hidden = true; $('play').textContent = t('pause');
-    setNotice('scrolling'); lastTime = performance.now();
+    setNotice('scrolling'); lastTime = null;
     if (state.prefs.focus) document.querySelector('header').hidden = true;
     scheduleMeasure();
   }
@@ -273,12 +272,23 @@
   function frame(time) {
     try {
       if (playing && rows.length) {
-        cursor = engine.advance(cursor, state.prefs.speed, (time - lastTime) / 1000, total);
-        position();
+        const elapsed = lastTime === null ? 0 : Math.max(0, (time - lastTime) / 1000);
+        if (tops.length === rows.length && !layoutPending) {
+          const end = tops[tops.length - 1] + heights[heights.length - 1];
+          const velocity = engine.scrollVelocity(tops[0], end, total, state.prefs.speed);
+          const nextY = engine.advanceScroll(scrollY, velocity, elapsed, end);
+          // A suspended or badly stalled window must not jump ahead on recovery.
+          if (nextY === null) { stop('interrupted'); return; }
+          scrollY = nextY;
+          cursor = engine.cursorAtOffset(scrollY, rows, prefix, tops, heights, total);
+          ignoreScrollUntil = performance.now() + 120;
+          viewport.scrollTop = scrollY - viewport.clientHeight * .32;
+          paint();
+        }
         if (time - lastSave >= 2000) { queueSave(); lastSave = time; }
         if (cursor >= total) stop('end');
       }
-    } finally { lastTime = time; requestAnimationFrame(frame); }
+    } finally { lastTime = playing ? time : null; requestAnimationFrame(frame); }
   }
   function setRecent(activeBook) {
     state.recent = [{id: activeBook.id, title: activeBook.title, format: activeBook.format || 'Text'},

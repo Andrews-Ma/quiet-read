@@ -164,6 +164,32 @@ internal sealed class ReaderWindow : Form
                             })()
                             """);
                         if (importCheck != "\"passed\"") throw new InvalidOperationException("Markdown import check failed: " + importCheck);
+                        await core.ExecuteScriptAsync("""(() => { document.getElementById('close').click(); window.importNovel(('Short.\n\n' + 'A longer example sentence. '.repeat(8) + '\n\n').repeat(40), 'motion.txt'); })()""");
+                        await Task.Delay(500);
+                        string motionSetup = await core.ExecuteScriptAsync("""
+                            (() => {
+                              const el = id => document.getElementById(id);
+                              if (el('title').textContent !== 'motion.txt') return 'failed';
+                              el('settings').click();
+                              el('countdown').checked = false;
+                              el('countdown').dispatchEvent(new Event('change', {bubbles: true}));
+                              el('speedMin').value = '100'; el('speedMax').value = '1000';
+                              el('applySpeedRange').click(); el('close').click();
+                              document.querySelector('[data-speed="1000"]').click();
+                              el('play').click();
+                              return 'passed';
+                            })()
+                            """);
+                        if (motionSetup != "\"passed\"") throw new InvalidOperationException("Scrolling setup failed: " + motionSetup);
+                        await Task.Delay(400);
+                        double start = JsonSerializer.Deserialize<double>(await core.ExecuteScriptAsync("document.getElementById('viewport').scrollTop"));
+                        await Task.Delay(1400);
+                        double moved = JsonSerializer.Deserialize<double>(await core.ExecuteScriptAsync("document.getElementById('viewport').scrollTop"));
+                        await core.ExecuteScriptAsync("document.getElementById('play').click()");
+                        await Task.Delay(500);
+                        double paused = JsonSerializer.Deserialize<double>(await core.ExecuteScriptAsync("document.getElementById('viewport').scrollTop"));
+                        if (moved - start < 2 || Math.Abs(paused - moved) > 2)
+                            throw new InvalidOperationException($"Scrolling or pause check failed: {start}, {moved}, {paused}");
                         Environment.ExitCode = 0;
                     }
                     catch (Exception ex) { Console.Error.WriteLine(ex); Environment.ExitCode = 1; }

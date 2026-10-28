@@ -46,10 +46,25 @@ assert.equal(engine.nearestSpeed(engine.speedOptions(100, 300), 200), 180);
 for (const [min, max] of [[0,100], [300,100], [150,150], [1,1001], [1.5,10]]) {
   assert.throws(() => engine.speedOptions(min, max), error => error.code === 'speedInvalid');
 }
-for (const speed of [150, 200]) {
-  let cursor = 0;
-  for (let i = 0; i < 30 * 60 * 60; i++) cursor = engine.advance(cursor, speed, 1 / 60, 200000);
-  assert.ok(Math.abs(cursor - speed * 30) < .01);
+// Unequal paragraphs and spacing must not change the visual scroll velocity.
+const rows = [{text: 'a'}, {text: 'b'.repeat(100)}, {text: 'c'.repeat(10)}];
+const {prefix, total} = engine.buildTimeline(rows);
+const tops = [100, 200, 600], heights = [100, 400, 100];
+const velocity = engine.scrollVelocity(100, 700, total, 222);
+assert.equal(velocity, 20);
+assert.equal(engine.cursorAtOffset(100, rows, prefix, tops, heights, total), 0);
+assert.equal(engine.cursorAtOffset(200, rows, prefix, tops, heights, total), 1);
+assert.equal(engine.cursorAtOffset(400, rows, prefix, tops, heights, total), 51);
+assert.equal(engine.cursorAtOffset(700, rows, prefix, tops, heights, total), total);
+let offset = 100, elapsed = 0;
+const intervals = [1 / 60, 1 / 120, .2, .4];
+for (let i = 0; i < 12000; i++) {
+  const dt = intervals[i % intervals.length];
+  offset = engine.advanceScroll(offset, velocity, dt, Infinity); elapsed += dt;
 }
-assert.equal(engine.advance(0, 150, 10, 100), .625);
-console.log('Passed: localization keys, parsing, ranges and simulated scrolling.');
+assert.ok(Math.abs(offset - (100 + velocity * elapsed)) < 1e-6);
+assert.equal(engine.advanceScroll(10, 20, .4, 100), 18);
+assert.equal(engine.advanceScroll(10, 20, 1.01, 100), null);
+assert.equal(engine.advanceScroll(90, 20, 1, 100), 100);
+assert.equal(engine.scrollVelocity(0, 100, 0, 150), 0);
+console.log('Passed: localization keys, parsing, ranges and constant-speed scrolling.');

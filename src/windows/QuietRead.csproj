@@ -7,7 +7,7 @@
     <Nullable>enable</Nullable>
     <ApplicationIcon>AppIcon.ico</ApplicationIcon>
     <AssemblyName>QuietRead</AssemblyName>
-    <Version>3.6.0</Version>
+    <Version>3.7.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.4258.31" />

@@ -16,6 +16,7 @@ QuietRead 是一款适用于 macOS 和 Windows 的离线提词器：它按照可
 
 - 导入 UTF-8 编码的 TXT、Markdown 文件，或直接粘贴文本。
 - 自定义 1–1000 字符/分钟的速度范围，六个按钮均匀分布。例如 100–300 对应 100、140、180、220、260、300。
+- 正文跨段落时保持画面匀速滚动；字符／分钟是全篇平均估算值，不同位置的实际读字速度可能不同，可根据朗读习惯调整。长时间中断时程序会暂停，避免突然跳过正文。
 - 按段落、章节或进度条定位；调整字号、静默倒计时和专注阅读视图。
 - 提供十一种界面配色，协调阅读区域、控件与窗口外观；新安装默认使用清爽蓝。
 - 可选择正文的字体风格；实际字体由系统提供，缺少时自动使用替代字体。
@@ -26,8 +27,8 @@ QuietRead 是一款适用于 macOS 和 Windows 的离线提词器：它按照可
 
 ## 下载与安装
 
-- **macOS：**[下载 Apple 芯片 Mac 版本](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.6.0)。需要 macOS 15 或更新版本；解压后将 `QuietRead.app` 拖入“应用程序”。
-- **Windows：**[下载 Windows x64 版本](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.6.0-windows)。需要 64 位 Windows 10 或 11，以及 [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。将 ZIP 内全部文件解压到同一文件夹，打开其中的 `QuietRead.exe`；Windows SmartScreen 可能对下载显示提示。
+- **macOS：**[下载 Apple 芯片 Mac 版本](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.7.0)。需要 macOS 15 或更新版本；解压后将 `QuietRead.app` 拖入“应用程序”。
+- **Windows：**[下载 Windows x64 版本](https://github.com/Andrews-Ma/quiet-read/releases/tag/v3.7.0-windows)。需要 64 位 Windows 10 或 11，以及 [Microsoft Edge WebView2 Runtime](https://developer.microsoft.com/microsoft-edge/webview2/)。将 ZIP 内全部文件解压到同一文件夹，打开其中的 `QuietRead.exe`；Windows SmartScreen 可能对下载显示提示。
 
 Windows 包已包含 .NET 运行时，阅读界面使用 WebView2。
 
