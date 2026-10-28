@@ -205,12 +205,39 @@
     if (state.prefs.focus) document.querySelector('header').hidden = true;
     scheduleMeasure();
   }
-  function panel(open) { $('panel').hidden = !open; $('settings').setAttribute('aria-expanded', String(open)); }
+  function panel(open) {
+    $('panel').hidden = $('panelBackdrop').hidden = !open;
+    $('settings').setAttribute('aria-expanded', String(open));
+  }
+  function applySpeedRange() {
+    const minText = $('speedMin').value.trim(), maxText = $('speedMax').value.trim();
+    try {
+      if (!minText || !maxText) { rangeSpec = {error: 'speedRequired'}; renderRangeMessage(); return false; }
+      const minimum = Number(minText), maximum = Number(maxText);
+      const options = engine.speedOptions(minimum, maximum);
+      const oldSpeed = state.prefs.speed, selected = engine.nearestSpeed(options, oldSpeed);
+      state.prefs.speedMin = minimum; state.prefs.speedMax = maximum; state.prefs.speed = selected;
+      speedUI(); queueSave();
+      rangeSpec = {options, selected, adjusted: selected !== oldSpeed}; renderRangeMessage();
+      return true;
+    } catch (error) { rangeSpec = {error: error.code || 'speedInvalid'}; renderRangeMessage(); return false; }
+  }
+  function closePanel() {
+    if ($('panel').hidden) return true;
+    const changed = $('speedMin').value.trim() !== String(state.prefs.speedMin) ||
+      $('speedMax').value.trim() !== String(state.prefs.speedMax);
+    if (changed && !applySpeedRange()) { $('speedMin').focus(); return false; }
+    if (rangeSpec?.error) { rangeSpec = null; renderRangeMessage(); }
+    const restoreFocus = $('panel').contains(document.activeElement);
+    panel(false);
+    if (restoreFocus) $('settings').focus();
+    return true;
+  }
   function toggle() {
     if (!ready) return;
+    if (!$('panel').hidden) { closePanel(); return; }
     if (playing || counting) { stop(); return; }
     if (cursor >= total) { cursor = 0; position(); }
-    panel(false);
     if (!state.prefs.countdown) { run(); return; }
     counting = true; let n = 3; $('count').hidden = false; $('count').textContent = n; $('play').textContent = t('cancel');
     countTimer = setInterval(() => { if (--n > 0) $('count').textContent = n; else { clearInterval(countTimer); run(); } }, 1000);
@@ -283,7 +310,7 @@
     activate(next, oldPosition?.cursor || 0);
     state.currentId = next.id; setRecent(next); selectionRequired = false; storageFailed = false;
     $('storage').textContent = t('storageOK');
-    panel(false); queueSave();
+    closePanel(); queueSave();
     const notices = [...(next.warnings || [])];
     if (sameNameChanged && !oldPosition) notices.unshift({key: 'changedVersion'});
     if (notices.length) { $('bannerText').textContent = notices.map(w => typeof w === 'string' ? w : t(w.key, w.values)).join(' '); $('banner').hidden = false; bannerSpec = null; }
@@ -363,7 +390,8 @@
   }
 
   $('play').onclick = toggle; $('prev').onclick = () => go(index - 1); $('next').onclick = () => go(index + 1);
-  $('settings').onclick = () => panel($('panel').hidden); $('close').onclick = () => panel(false);
+  $('settings').onclick = () => { if ($('panel').hidden) panel(true); else closePanel(); };
+  $('close').onclick = closePanel; $('panelBackdrop').onclick = closePanel;
   $('dismiss').onclick = () => { $('banner').hidden = true; };
   $('theme').onchange = event => {
     state.prefs.theme = themes.includes(event.target.value) ? event.target.value : 'dark';
@@ -376,18 +404,7 @@
   document.querySelectorAll('[data-speed]').forEach(button => {
     button.onclick = () => { state.prefs.speed = +button.dataset.speed; speedUI(); queueSave(); };
   });
-  $('applySpeedRange').onclick = () => {
-    const minText = $('speedMin').value.trim(), maxText = $('speedMax').value.trim();
-    try {
-      if (!minText || !maxText) { rangeSpec = {error: 'speedRequired'}; renderRangeMessage(); return; }
-      const minimum = Number(minText), maximum = Number(maxText);
-      const options = engine.speedOptions(minimum, maximum);
-      const oldSpeed = state.prefs.speed, selected = engine.nearestSpeed(options, oldSpeed);
-      state.prefs.speedMin = minimum; state.prefs.speedMax = maximum; state.prefs.speed = selected;
-      speedUI(); queueSave();
-      rangeSpec = {options, selected, adjusted: selected !== oldSpeed}; renderRangeMessage();
-    } catch (error) { rangeSpec = {error: error.code || 'speedInvalid'}; renderRangeMessage(); }
-  };
+  $('applySpeedRange').onclick = applySpeedRange;
   $('font').oninput = event => {
     state.prefs.font = +event.target.value; $('fontValue').textContent = state.prefs.font;
     document.documentElement.style.setProperty('--size', state.prefs.font + 'px'); scheduleMeasure(); queueSave();
@@ -410,7 +427,7 @@
   viewport.addEventListener('touchstart', () => { stop('manual'); ignoreScrollUntil = 0; }, {passive: true});
   viewport.addEventListener('scroll', () => { if (ready && !playing && !counting && performance.now() > ignoreScrollUntil) syncCursor(); });
   document.addEventListener('keydown', event => {
-    if (event.code === 'Escape') { panel(false); document.querySelector('header').hidden = false; scheduleMeasure(); return; }
+    if (event.code === 'Escape') { closePanel(); document.querySelector('header').hidden = false; scheduleMeasure(); return; }
     if (event.target.closest('input,textarea,select,button,[contenteditable="true"]')) return;
     if (event.code === 'Space') { event.preventDefault(); if (!event.repeat) toggle(); }
     else if (event.code === 'ArrowLeft') { event.preventDefault(); go(index - 1); }

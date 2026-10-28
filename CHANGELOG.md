@@ -1,6 +1,10 @@
 # Changelog
 
-## Unreleased
+## 3.5
+
+- Dismiss settings by clicking outside; validate and apply pending speed-range edits when closing.
+
+## Earlier changes
 
 - Add six coordinated color themes and remember the selected theme.
 - Coordinate native window colors with the selected theme.

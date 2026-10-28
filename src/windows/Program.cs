@@ -110,9 +110,49 @@ internal sealed class ReaderWindow : Form
                         string saved = await core.ExecuteScriptAsync("JSON.parse(localStorage.getItem('quietprompt-v3:state') || '{}').prefs?.theme || ''");
                         if (result != "\"#c3e4f8\"" || saved != "\"blue\"" || lastThemeColor != "#c3e4f8")
                             throw new InvalidOperationException("Theme, title bar, or storage check failed.");
+                        string settingsCheck = await core.ExecuteScriptAsync("""
+                            (() => {
+                              const el = id => document.getElementById(id);
+                              const expect = (condition, message) => { if (!condition) throw new Error(message); };
+                              const speeds = () => [...document.querySelectorAll('[data-speed]')].map(b => b.textContent).join(',');
+                              const outside = id => {
+                                const box = el(id).getBoundingClientRect();
+                                const layer = document.elementFromPoint(box.left + box.width / 2, box.top + box.height / 2);
+                                expect(layer?.id === 'panelBackdrop', `Settings did not cover ${id}`);
+                                layer.click();
+                              };
+                              el('settings').click();
+                              el('speedMin').value = '100'; el('speedMax').value = '300';
+                              el('paste').value = 'An example draft';
+                              const title = el('title').textContent, position = el('position').textContent;
+                              outside('play');
+                              expect(el('panel').hidden && el('play').textContent === 'Start', 'Outside click started reading');
+                              expect(speeds() === '100,140,180,220,260,300', 'Valid range was not applied');
+                              expect(el('title').textContent === title && el('paste').value === 'An example draft', 'Draft was loaded or lost');
+                              el('settings').click();
+                              el('speedMin').value = '300'; el('speedMax').value = '100';
+                              outside('next');
+                              expect(!el('panel').hidden && el('speedRangeMessage').textContent.includes('maximum greater'), 'Invalid range closed settings');
+                              expect(el('position').textContent === position && speeds() === '100,140,180,220,260,300', 'Invalid range changed progress or speeds');
+                              el('close').click();
+                              expect(!el('panel').hidden, 'Close ignored the invalid range');
+                              el('speedMin').value = '120'; el('speedMax').value = '';
+                              outside('seek');
+                              expect(!el('panel').hidden && el('speedRangeMessage').textContent.includes('both'), 'Missing bound was accepted');
+                              el('speedMax').value = '240';
+                              el('speedMax').dispatchEvent(new KeyboardEvent('keydown', {code: 'Escape', bubbles: true}));
+                              expect(el('panel').hidden && speeds() === '120,144,168,192,216,240', 'Escape did not apply the valid range');
+                              expect(el('title').textContent === title && el('paste').value === 'An example draft', 'Closing changed the draft or current script');
+                              return 'passed';
+                            })()
+                            """);
+                        await Task.Delay(500);
+                        string speedSaved = await core.ExecuteScriptAsync("(() => { const p = JSON.parse(localStorage.getItem('quietprompt-v3:state') || '{}').prefs; return p ? `${p.speedMin},${p.speedMax}` : ''; })()");
+                        if (settingsCheck != "\"passed\"" || speedSaved != "\"120,240\"")
+                            throw new InvalidOperationException("Settings dismissal or saved speed range check failed: " + settingsCheck);
                         Environment.ExitCode = 0;
                     }
-                    catch { Environment.ExitCode = 1; }
+                    catch (Exception ex) { Console.Error.WriteLine(ex); Environment.ExitCode = 1; }
                     Close();
                 };
             }

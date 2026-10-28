@@ -29,6 +29,7 @@
     <span id="position">—</span><input id="seek" type="range" min="0" max="10000" value="0" aria-label="Reading progress" data-i18n-aria="readingProgress">
     <span id="notice" role="status" aria-live="polite">Restoring…</span><button id="save">Waiting to save</button>
   </footer>
+  <div id="panelBackdrop" hidden aria-hidden="true"></div>
   <aside id="panel" hidden>
     <button id="close" aria-label="Close settings" data-i18n="close" data-i18n-aria="closeSettings">Close</button>
     <h2 data-i18n="settingsTitle">Script and settings</h2>
@@ -41,8 +42,8 @@
     <label for="scene" data-i18n="section">Section</label><select id="scene"></select>
     <label data-i18n="speedRange">Speed range (characters per minute)</label>
     <div class="row speed-range">
-      <label for="speedMin"><span data-i18n="minimum">Minimum</span><input id="speedMin" type="number" min="1" max="1000" step="1" inputmode="numeric"></label>
-      <label for="speedMax"><span data-i18n="maximum">Maximum</span><input id="speedMax" type="number" min="1" max="1000" step="1" inputmode="numeric"></label>
+      <label for="speedMin"><span data-i18n="minimum">Minimum</span><input id="speedMin" type="number" min="1" max="1000" step="1" inputmode="numeric" aria-describedby="speedRangeMessage"></label>
+      <label for="speedMax"><span data-i18n="maximum">Maximum</span><input id="speedMax" type="number" min="1" max="1000" step="1" inputmode="numeric" aria-describedby="speedRangeMessage"></label>
       <button id="applySpeedRange" type="button" data-i18n="applyRange">Apply range</button>
     </div>
     <p id="speedRangeMessage" role="status" aria-live="polite"></p>

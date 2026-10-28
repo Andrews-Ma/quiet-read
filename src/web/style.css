@@ -165,7 +165,7 @@ header {
   padding:9px 15px;
   background:var(--ui-bar);
   z-index:2}
-header[hidden],aside[hidden],#count[hidden],#banner[hidden] {
+header[hidden],aside[hidden],#panelBackdrop[hidden],#count[hidden],#banner[hidden] {
   display:none}
 #play {
   min-width:76px}
@@ -262,6 +262,10 @@ footer {
 #dismiss {
   min-height:27px;
   padding:3px 8px}
+#panelBackdrop {
+  position:fixed;
+  inset:0;
+  z-index:4}
 aside {
   position:absolute;
   right:12px;
